@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Listar Estados</title>
+</head>
+<body>
+    <h1>Estados</h1>
+    <a href="{% url 'adicionar_estado' %}">Adicionar Estado</a>
+    <ul>
+        {% for estado in estados %}
+            <li>
+                <a href="{% url 'detalhar_estado' id=estado.id %}">
+                    <img height="300" width="200" src="{{ estado.img.url }}" />
+                    {{ estado.nome }} - {{ estado.versao }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

@@ -1,0 +1,22 @@
+<!-- core/templates/core/listar_livros.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Listar Países</title>
+</head>
+<body>
+    <h1>Países</h1>
+    <a href="{% url 'adicionar_patria' %}">Adicionar País</a>
+    <ul>
+        {% for patria in patrias %}
+            <li>
+                <a href="{% url 'detalhar_patria' id=patria.id %}">
+                    <!--<img height="300" width="200" src="{{ livro.img.url }}" />-->
+                    {{ patria.nome }} - {{ patria.capital }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

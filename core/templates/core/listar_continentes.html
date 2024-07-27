@@ -1,0 +1,22 @@
+<!-- core/templates/core/listar_livros.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Listar Continentes</title>
+</head>
+<body>
+    <h1>Continentes</h1>
+    <a href="{% url 'adicionar_continente' %}">Adicionar Continente</a>
+    <ul>
+        {% for continente in continentes %}
+            <li>
+                <a href="{% url 'detalhar_continente' id=continente.id %}">
+                    <!--<img height="300" width="200" src="{{ livro.img.url }}" />-->
+                    {{ continente.nome }} - {{ continente.versao }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
