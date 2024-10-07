@@ -1,22 +1,104 @@
-<!-- core/templates/core/listar_livros.html -->
+{% extends 'base.html' %}
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Listar Continentes</title>
-</head>
-<body>
-    <h1>Continentes</h1>
-    <a href="{% url 'adicionar_continente' %}">Adicionar Continente</a>
-    <ul>
-        {% for continente in continentes %}
-            <li>
-                <a href="{% url 'detalhar_continente' id=continente.id %}">
-                    <!--<img height="300" width="200" src="{{ livro.img.url }}" />-->
-                    {{ continente.nome }} - {{ continente.versao }}
-                </a>
-            </li>
-        {% endfor %}
-    </ul>
-</body>
-</html>
+{% load crispy_forms_tags %}
+
+
+{% block menu %}
+<ul class="nav nav-tabs">
+	<li class="nav-item">
+		<a class="nav-link" href="{% url 'core_home' %} ">Home</a>
+	</li>
+	<li class="nav-item active dropdown">
+	<li class="nav-item dropdown">
+		<a class="nav-link dropdown-toggle  active" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
+			aria-expanded="false">Servicos</a>
+		<div class="dropdown-menu">
+			<a class="dropdown-item active" href="{% url 'core_listar_continentes' %}">Continentes</a>
+			<a class="dropdown-item" href="{% url 'core_listar_cidades' %}">Cidades</a>
+			<a class="dropdown-item" href="{% url 'core_listar_estados' %}">Estados</a>
+			<a class="dropdown-item" href="{% url 'core_listar_patrias' %}">Países</a>
+		</div>
+	</li>
+	</li>
+	<li class="nav-item">
+		<a class="nav-link" href="{% url 'core_home' %} ">Logout</a>
+	</li>
+
+</ul>
+{% endblock %}
+
+{% block main %}
+
+
+<div class="row">
+	<div class="col-sm-6">
+		<h1>Cadastro</h1>
+		<form id="continente-form" method="POST" enctype="multipart/form-data" action="{% url 'core_salvar_continente' %}">
+			{% csrf_token %}
+
+			<input type="hidden" id="id_continente_id" name="continente_id">
+			{{ form|crispy }}
+			
+			<button type="submit" class="btn btn-primary">Cadastrar</button>
+		</form>
+	</div>
+
+	<div class="col-sm-6">
+		<h1>Lista Continentes</h1>
+		<table class="table">
+			<thead class="thead-dark">
+				<tr>
+					<th scope="col">ID</th>
+					<th scope="col">Nome</th>
+					<th scope="col">Versão</th>
+					<th scope="col">Em</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for continente in continentes %}
+				<tr data-id="{{ continente.id }}" class="continente-row">
+					<td>{{ continente.id}}</td>
+					<td>{{ continente.nome}}</td>
+					<td>{{ continente.versao}}</td>
+					<td>{{ continente.created_at}}</td>
+					<td>
+						<a class="btn btn-danger" href="{% url 'core_continente_delete_confirm' continente.id%}"
+						onClick="return confirm('Tem certeza que deseja excluir este continente?') ">Deletar</a>
+					</td>
+				</tr>
+				{% endfor %}
+
+			</tbody>
+		</table>
+
+		<div>
+		</div>
+		<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+		<script>
+			$(document).ready(function () {
+				// Quando um item da tabela é clicado
+				$('.continente-row').on('click', function () {
+					var continenteId = $(this).data('id');
+					var url = '/sistema/detalhar_continente/' + continenteId + '/';
+
+					// Realiza a requisição AJAX
+					$.ajax({
+						url: url,
+						method: 'GET',
+						success: function (data) {
+							// Preenche o formulário com os dados do continente
+							$('#id_continente_id').val(continenteId);  // Armazena o ID do livro
+							$('#id_nome').val(data.nome);
+							$('#id_created_at').val(data.created_at);
+							$('#id_updated_at').val(data.updated_at);
+							$('#id_versao').val(data.versao);
+							
+
+						}
+					});
+				});
+			});
+
+		</script>
+		
+		{% endblock %}

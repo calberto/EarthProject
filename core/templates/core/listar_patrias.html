@@ -1,22 +1,163 @@
-<!-- core/templates/core/listar_livros.html -->
+{% extends 'base.html' %}
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Listar Países</title>
-</head>
-<body>
-    <h1>Países</h1>
-    <a href="{% url 'adicionar_patria' %}">Adicionar País</a>
-    <ul>
-        {% for patria in patrias %}
-            <li>
-                <a href="{% url 'detalhar_patria' id=patria.id %}">
-                    <!--<img height="300" width="200" src="{{ livro.img.url }}" />-->
-                    {{ patria.nome }} - {{ patria.capital }}
-                </a>
-            </li>
-        {% endfor %}
-    </ul>
-</body>
-</html>
+{% load crispy_forms_tags %}
+
+
+{% load format_filters %}
+
+{{ populacao|format_number }}
+
+{% block menu %}
+<ul class="nav nav-tabs">
+	<li class="nav-item">
+		<a class="nav-link" href="{% url 'core_home' %} ">Home</a>
+	</li>
+	<li class="nav-item active dropdown">
+	<li class="nav-item dropdown">
+		<a class="nav-link dropdown-toggle  active" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
+			aria-expanded="false">Servicos</a>
+		<div class="dropdown-menu">
+			<a class="dropdown-item active" href="{% url 'core_listar_continentes' %}">Continentes</a>
+			<a class="dropdown-item" href="{% url 'core_listar_cidades' %}">Cidades</a>
+			<a class="dropdown-item" href="{% url 'core_listar_estados' %}">Estados</a>
+			<a class="dropdown-item" href="{% url 'core_listar_patrias' %}">Paísess</a>
+		</div>
+	</li>
+	</li>
+	<li class="nav-item">
+		<a class="nav-link" href="{% url 'core_home' %} ">Logout</a>
+	</li>
+
+</ul>
+{% endblock %}
+
+{% block main %}
+
+
+<div class="row">
+	<div class="col-sm-6">
+		<h1>Cadastro</h1>
+		<form id="patria-form" method="post" enctype="multipart/form-data" action="{% url 'core_salvar_patria' %}">
+			{% csrf_token %}
+
+			<input type="hidden" id="id_patria_id" name="patria_id">
+
+			{{ form|crispy }}
+
+			<p>
+
+				<!-- Tag de imagem para pré-visualização -->
+
+				<img id="id_flag_preview"
+					src="{% if form.instance.flag %}{{ form.instance.flag.url }}{% else %}# {% endif %}"
+					alt="Imagem da bandeira" width="100">
+
+			</p>
+			<button type="submit" class="btn btn-primary">Cadastrar</button>
+		</form>
+	</div>
+
+	<div class="col-sm-6">
+		<h1>Lista Patrias</h1>
+		<div class="col-8  m-auto pt-3 pb-2 text-center">
+			<form method="get">
+				<input type="text" id="search" name="search" class="form-control" placeholder="Buscar...">
+			</form>
+		</div>
+		<table class="table">
+			<thead class="thead-dark">
+				<tr>
+					<th scope="col">ID</th>
+					<th scope="col">Nome</th>
+					<th scope="col">Capital</th>
+					<th scope="col">População</th>
+					<th scope="col">Versão</th>
+					<th scope="col">Created_at</th>
+					<th scope="col">updated_at</th>
+					<th scope="col">Continentes</th>
+					<th scope="col">Bandeira</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for patria in db %}
+				<tr data-id="{{ patria.id }}" class="patria-row">
+					<td>{{ patria.id}}</td>
+					<td>{{ patria.nome}}</td>
+					<td>{{ patria.capital}}</td>
+					<td>{{ patria.populacao|format_number}}</td>
+					<td>{{ patria.versao}}</td>
+					<td>{{ patria.created_at}}</td>
+					<td>{{ patria.updated_at}}</td>
+					<td>{{ patria.continentes}}</td>
+					<td>{{ patria.flag}}</td>
+					<td>
+						<a class="btn btn-danger" href="{% url 'core_patria_delete_confirm' patria.id%}"
+							onClick="return confirm('Tem certeza que deseja excluir esta patria?') ">Deletar</a>
+					</td>
+				</tr>
+				{% endfor %}
+
+			</tbody>
+		</table>
+		<!-- Exibir links de navegação da página -->
+		<div class="pagination">
+			{% if db.has_previous %}
+			<a href="?page={{db.previous_page_number}}">
+				< </a>
+					{% endif %}
+
+					{{db.number}}
+
+					{% if db.has_next %}
+					<a href="?page={{db.next_page_number}}"> > </a>
+					{% endif %}
+
+
+		</div>
+
+		<div>
+		</div>
+		<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+		<script>
+
+			function formatNumber(number) {
+				return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+			}
+
+			$(document).ready(function () {
+				// Quando um item da tabela é clicado
+				$('.patria-row').on('click', function () {
+					var patriaId = $(this).data('id');
+					var url = '/sistema/detalhar_patria/' + patriaId + '/';
+
+					// Realiza a requisição AJAX
+					$.ajax({
+						url: url,
+						method: 'GET',
+						success: function (data) {
+							// Preenche o formulário com os dados da patriao
+							$('#id_patria_id').val(patriaId);  // Armazena o ID do livro
+							$('#id_nome').val(data.nome);
+							$('#id_capital').val(data.capital);
+							var populacaoFormatada = formatNumber(data.populacao);
+							//alert(populacaoFormatada)
+							console.log("Campo encontrado: ", $('#id_populacao'));
+							$('#id_populacao').val(populacaoFormatada);
+							$('#id_versao').val(data.versao);
+							$('#id_created_at').val(data.created_at);
+							$('#id_updated_at').val(data.updated_at);
+							if (data.flag) {
+								$('#id_flag_preview').attr('src', data.flag);
+							} else {
+								$('#id_flag_preview').attr('src', '');  // Limpa o preview se não houver imagem
+							}
+							$('#id_continentes').val(data.continentes);
+
+						}
+					});
+				});
+			});
+
+		</script>
+	</div>
+{% endblock %}

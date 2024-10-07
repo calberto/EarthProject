@@ -16,12 +16,12 @@ class Continente(models.Model):
 class Patrias(models.Model):
     nome = models.CharField(max_length=45)
     capital = models.CharField(max_length=100)
-    populacao = models.IntegerField()
+    populacao = models.CharField(max_length=45)
     versao = models.IntegerField(blank=True, null=True)
     created_at = models.DateField()
     updated_at = models.DateField()
-    flag = models.ImageField(upload_to='flags/')
     continentes = models.ForeignKey(Continente, models.DO_NOTHING)
+    flag = models.ImageField(upload_to='flags/')
 
     def __str__(self):
         return self.nome
@@ -35,11 +35,11 @@ class Patrias(models.Model):
 class Estados(models.Model):
     nome = models.CharField(max_length=100)
     uf = models.CharField(max_length=4)
+    patrias = models.ForeignKey('Patrias', models.DO_NOTHING)
     versao = models.IntegerField(blank=True, null=True)
-    flag = models.ImageField(upload_to='flags/')
     created_at = models.DateField(blank=True, null=True)
     updated_at = models.DateField()
-    patrias = models.ForeignKey('Patrias', models.DO_NOTHING)
+    flag = models.ImageField(upload_to='flags/')    
 
     def __str__(self):
         return self.nome

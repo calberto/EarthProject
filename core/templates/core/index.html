@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block menu%}
+<ul class="nav nav-tabs">
+	<li class="nav-item">
+		<a class="nav-link active" href="{% url 'core_home' %} ">Home</a>
+	</li>
+
+	<li class="nav-item dropdown">
+		<a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
+			aria-expanded="false">Servicos</a>
+		<div class="dropdown-menu">
+			<a class="dropdown-item" href="{% url 'core_listar_continentes' %}">Continentes</a>
+			<a class="dropdown-item" href="{% url 'core_listar_cidades' %}">Cidades</a>
+			<a class="dropdown-item" href="{% url 'core_listar_estados' %}">Estados</a>
+			<a class="dropdown-item" href="{% url 'core_listar_patrias' %}">Países</a>
+
+			<div class="dropdown-divider"></div>
+		</div>
+	</li>
+	{% if user.is_authenticated %}
+		<p>Hello, {{ user.username }}!</p>
+		<form method="post" action="{% url 'logout' %}">
+			{% csrf_token %}
+			<button type="submit", class="btn btn-primary">Logout</button>
+		</form>
+		{% else %}
+		<p>You are not logged in. <a href="{% url 'login' %}">Login</a></p>
+	{% endif %}
+
+</ul>
+{% endblock%}
+
+{% block main %}
+<div class="row">
+	<div class="col"><br /><br /><br /><br />
+		<h1>Seja bem vindo ao Sistema!</h1>
+
+		<a href="/admin/login/?next=/sistema">Clique aqui para entrar</a>
+	</div>
+</div>
+{% endblock %}
