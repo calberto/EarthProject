@@ -2,12 +2,14 @@ from django.shortcuts import render
 
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Continente, Patrias, Estados, Cidades
+from django.db.models import Q 
 from .forms import ContinenteForm, PatriaForm, EstadoForm, CidadeForm
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 import imghdr
 from django.http import HttpResponse
 from django.core.paginator import Paginator
+
 
 def home(request):
     context = {'mensagem' : 'Olá Ninho!'}
@@ -60,12 +62,25 @@ def continente_delete_confirm(request, continente_pk):
 # Cidades
 def listar_cidades(request):
     data = {}
+    
+    # Busca por nome ou sigla
     search = request.GET.get('search')
+    order = request.GET.get('order_by', 'nome')  # Campo para ordenar
+    direction = request.GET.get('direction', 'asc')  # Direção (asc ou desc)
+    
     if search:
-        data['db'] = Cidades.objects.filter(nome__icontains=search)
-    else:
-        data['db'] = Cidades.objects.all()	
+                data['db'] = Cidades.objects.filter(
+                    Q(nome__icontains=search) | Q(estados__nome__icontains=search)
+                )
 
+    else:
+        data['db'] = Cidades.objects.all()
+
+    # Ordenação
+    if direction == 'desc':
+        order = f'-{order}'
+    
+    data['db'] = data['db'].order_by(order)
     
     # Configura o paginador: 10 itens por página
     paginator = Paginator(data['db'], 20)  # Mostra 10 estados por página
@@ -118,15 +133,26 @@ def cidade_delete_confirm(request, cidade_pk):
 # Estados
 def listar_estados(request):
     data = {}
+    
+    # Busca por nome ou sigla
     search = request.GET.get('search')
+    order = request.GET.get('order_by', 'nome')  # Campo para ordenar
+    direction = request.GET.get('direction', 'asc')  # Direção (asc ou desc)
+    
     if search:
-        data['db'] = Estados.objects.filter(nome__icontains=search)
-    else:
-        data['db'] = Estados.objects.all()	
+                data['db'] = Estados.objects.filter(nome__icontains=search) | Estados.objects.filter(uf__icontains=search)
 
+    else:
+        data['db'] = Estados.objects.all()
+
+    # Ordenação
+    if direction == 'desc':
+        order = f'-{order}'
+    
+    data['db'] = data['db'].order_by(order)
     
     # Configura o paginador: 10 itens por página
-    paginator = Paginator(data['db'], 5)  # Mostra 10 estados por página
+    paginator = Paginator(data['db'], 15)  # Mostra 10 estados por página
 
     # Obtém o número da página da URL
     pages = request.GET.get('page')
@@ -182,11 +208,22 @@ def estado_delete_confirm(request, estado_pk):
 
 def listar_patrias(request):
     data = {}
+    
+       # Busca por nome ou sigla
     search = request.GET.get('search')
+    order = request.GET.get('order_by', 'nome')  # Campo para ordenar
+    direction = request.GET.get('direction', 'asc')  # Direção (asc ou desc)
+
     if search:
-        data['db'] = Patrias.objects.filter(nome__icontains=search)
+        data['db'] = Patrias.objects.filter(nome__icontains=search) | Patrias.objects.filter(capital__icontains=search) | Patrias.objects.filter(populacao__icontains=search )
     else:
-        data['db'] = Patrias.objects.all()	
+        data['db'] = Patrias.objects.all()
+
+    # Ordenação
+    if direction == 'desc':
+        order = f'-{order}'
+    
+    data['db'] = data['db'].order_by(order)
 
     
     # Configura o paginador: 10 itens por página

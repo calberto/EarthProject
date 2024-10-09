@@ -55,15 +55,16 @@
 		<h1>Lista Estados</h1>
 		<div class="col-8  m-auto pt-3 pb-2 text-center">
 			<form method="get">
-				<input type="text" id="search" name="search" class="form-control" placeholder="Buscar...">
+				<input type="text" name="search" placeholder="Buscar por nome ou sigla..." value="{{ request.GET.search }}">
+
 			</form>
 		</div>
 		<table class="table">
 			<thead class="thead-dark">
 				<tr>
 					<th scope="col">ID</th>
-					<th scope="col">Nome</th>
-					<th scope="col">UF</th>
+					<th><a href="?search={{ request.GET.search }}&order_by=nome&direction={% if request.GET.direction == 'asc' %}desc{% else %}asc{% endif %}">Nome</a></th>
+					<th><a href="?search={{ request.GET.search }}&order_by=uf&direction={% if request.GET.direction == 'asc' %}desc{% else %}asc{% endif %}">Sigla</a></th>
 					<th scope="col">Versão</th>
 					<th scope="col">Países</th>
 					<th scope="col">Bandeira</th>
@@ -93,19 +94,17 @@
 			</tbody>
 		</table>
 		<!-- Exibir links de navegação da página -->
-		<div class="pagination">
-			{% if db.has_previous %}
-			<a href="?page={{db.previous_page_number}}">
-				< </a>
-					{% endif %}
-
-					{{db.number}}
-
-					{% if db.has_next %}
-					<a href="?page={{db.next_page_number}}"> > </a>
-					{% endif %}
-
-
+		<div>
+			<span>Página {{ db.number }} de {{ db.paginator.num_pages }}</span>
+			<div>
+				{% if db.has_previous %}
+					<a href="?page={{ db.previous_page_number }}&search={{ request.GET.search }}&order_by={{ request.GET.order_by }}&direction={{ request.GET.direction }}">Anterior</a>
+				{% endif %}
+		
+				{% if db.has_next %}
+					<a href="?page={{ db.next_page_number }}&search={{ request.GET.search }}&order_by={{ request.GET.order_by }}&direction={{ request.GET.direction }}">Próximo</a>
+				{% endif %}
+			</div>
 		</div>
 		<div>
 		</div>
