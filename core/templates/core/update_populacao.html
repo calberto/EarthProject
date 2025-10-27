@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Executar Script</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Carregar Script Python</h1>
+    <button id="executar-script">Executar Script</button>
+    <div id="resultado"></div>
+
+    <script>
+        $("#executar-script").on("click", function () {
+            $.get("/executar-script/", function (data) {
+                $("#resultado").html(`
+                    <p>${data.mensagem}</p>
+                    <pre>${data.saida}</pre>
+                    <pre>${data.erro}</pre>
+                `);
+            }).fail(function () {
+                $("#resultado").html("<p>Erro ao executar o script!</p>");
+            });
+        });
+    </script>
+</body>
+</html>

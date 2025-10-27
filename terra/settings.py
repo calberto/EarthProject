@@ -31,9 +31,9 @@ INSTALLED_APPS = [
     'core',
     'website',
     'crispy_forms',
-    'crispy_bootstrap4',  # Se estiver usando o Bootstrap 4
-    # ou 'crispy_bootstrap5' para Bootstrap 5
-]
+    'crispy_bootstrap5',
+]    
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -119,22 +119,39 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+]
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
-# Configuração do Crispy
-CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap4"
-CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
-
+""" 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
+    },
+}
 
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = 'livros_home'
 LOGOUT_REDIRECT_URL = 'livros_home'
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
-
+"""
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"  # ou 'bootstrap4' se estiver usando mesmo assim
+CRISPY_TEMPLATE_PACK = "bootstrap5"  # atualizado

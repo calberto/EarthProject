@@ -1,17 +1,14 @@
 {% extends 'base.html' %}
-
 {% load crispy_forms_tags %}
-
 
 {% block menu %}
 <ul class="nav nav-tabs">
 	<li class="nav-item">
-		<a class="nav-link" href="{% url 'core_home' %} ">Home</a>
+		<a class="nav-link" href="{% url 'core_home' %}">Home</a>
 	</li>
-	<li class="nav-item active dropdown">
 	<li class="nav-item dropdown">
-		<a class="nav-link dropdown-toggle  active" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
-			aria-expanded="false">Servicos</a>
+		<a class="nav-link dropdown-toggle active" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
+			aria-expanded="false">Serviços</a>
 		<div class="dropdown-menu">
 			<a class="dropdown-item active" href="{% url 'core_listar_continentes' %}">Continentes</a>
 			<a class="dropdown-item" href="{% url 'core_listar_cidades' %}">Cidades</a>
@@ -19,129 +16,446 @@
 			<a class="dropdown-item" href="{% url 'core_listar_patrias' %}">Países</a>
 		</div>
 	</li>
-	</li>
 	<li class="nav-item">
-		<a class="nav-link" href="{% url 'core_home' %} ">Logout</a>
+		<a class="nav-link" href="{% url 'core_home' %}">Logout</a>
 	</li>
-
 </ul>
 {% endblock %}
 
 {% block main %}
+<div class="container-fluid">
+	<div class="row mb-4">
+		<div class="col-12">
+			<h2 class="text-center mb-4 text-primary">
+				<i class="fas fa-map-marker-alt"></i> Gerenciamento de Estados
+			</h2>
+		</div>
+	</div>
+	<!-- FORMULÁRIO DE Estados -->
+	<div class="row mb-5">
+		<div class="col-12">
+			<div class="card shadow-lg border-0">
+				<div class="card-header bg-gradient-primary text-white">
+					<h4 class="mb-0">
+						<i class="fas fa-plus-circle"></i> Cadastro de Estado
+						
+					</h4>
+				</div>
+				<div class="card-body bg-light">
+					<form id="estado-form" method="POST" enctype="multipart/form-data"
+						action="{% url 'core_salvar_estado' %}">
+
+						{% csrf_token %}
+						<input type="hidden" id="id_estado_id" name="estado_id">
+
+						<!-- PRIMEIRA LINHA -->
+						<div class="row mb-3">
+							<div class="col-md-4">
+								<label for="id_nome" class="form-label fw-bold">
+									<i class="fas fa-tag"></i> Nome do Estado
+								</label>
+								<input type="text" class="form-control form-control-lg" id="id_nome" name="nome"
+									placeholder="Digite o nome da estado" required>
+							</div>
+							<div class="col-md-4">
+								<label for="id_uf" class="form-label fw-bold">
+									<i class="fas fa-tag"></i> Sigla do Estado
+								</label>
+								<input type="text" class="form-control form-control-lg" id="id_uf" name="uf"
+									placeholder="Digite a sigla da estado" required>
+							</div>
+							<div class="col-md-3">
+								<label for="id_versao" class="form-label fw-bold">
+									<i class="fas fa-city"></i> Versão
+								</label>
+								<input type="text" class="form-control form-control-lg" id="id_versao" name="versao"
+									placeholder="Digite a versão" required>
+							</div>
+							<div class="col-md-3">
+								<label for="{{ form.patrias.id_for_label }}" class="form-label fw-bold">
+									<i class="fas fa-map"></i> País
+								</label>
+								{{ form.patrias }}
+								{% if form.patrias.errors %}
+								<div class="text-danger">{{ form.patrias.errors }}</div>
+								{% endif %}
+							</div>
+							<div class="col-md-2">
+								<label for="id_created_at" class="form-label fw-bold">
+									<i class="fas fa-calendar-plus"></i> Em:
+								</label>
+								<input type="date" class="form-control form-control-lg" id="id_created_at"
+									name="created_at" required>
+							</div>
+							<div class="form-group mb-3">
+								<label for="id_flag" class="form-label fw-bold">
+									<i class="fas fa-flag"></i> Bandeira
+								</label>
+								<input type="file" class="form-control form-control-lg" id="id_flag" name="flag"
+									accept="flag/*">
+								<div id="current-flag-info" class="mt-2 text-muted" style="display: none;">
+									<small><i class="fas fa-info-circle"></i> Bandeira atual será mantida se não
+										selecionar nova Bandeira</small>
+								</div>
+							</div>
+
+						</div>
+						<!-- Preview da Flag -->
+						<div class="row mt-3">
+							<div class="col-12 text-center">
+								<div class="flag-preview-container">
+									<img id="id_flag_preview" src="#" alt="Preview da Bandeira"
+										class="img-fluid rounded shadow"
+										style="max-width: 300px; max-height: 200px; display: none;">
+								</div>
+							</div>
+						</div>
 
 
-<div class="row">
-	<div class="col-sm-6">
-		<h1>Cadastro</h1>
-		<form id="estado-form" method="post" enctype="multipart/form-data" action="{% url 'core_salvar_estado' %}">
-			{% csrf_token %}
-
-			<input type="hidden" id="id_estado_id" name="estado_id">
-			{{ form|crispy }} 
-			
-			<p>	
-			
-				<!-- Tag de imagem para pré-visualização -->
-
-				<img id="id_flag_preview" src="{% if form.instance.flag %}{{ form.instance.flag.url }}{% else %}# {% endif %}" 
-				alt="Imagem da bandeira" width="100">
-					
-			</p>	
-			<button type="submit" class="btn btn-primary">Cadastrar</button>
-		</form>
+						<!-- SEGUNDA LINHA - Botões -->
+						<div class="row mt-4">
+							<div class="col-12 text-center">
+								<button type="submit" class="btn btn-primary btn-lg px-5 me-3">
+									<i class="fas fa-save"></i> Salvar Estado
+								</button>
+								<button type="button" class="btn btn-secondary btn-lg px-5"
+									onclick="limparFormulario()">
+									<i class="fas fa-eraser"></i> Limpar
+								</button>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
 	</div>
 
-	<div class="col-sm-6">
-		<h1>Lista Estados</h1>
-		<div class="col-8  m-auto pt-3 pb-2 text-center">
-			<form method="get">
-				<input type="text" name="search" placeholder="Buscar por nome ou sigla..." value="{{ request.GET.search }}">
+	<script>
+		function limparFormulario() {
+			document.getElementById('estado-form').reset();
+		}
+	</script>
 
-			</form>
-		</div>
-		<table class="table">
-			<thead class="thead-dark">
-				<tr>
-					<th scope="col">ID</th>
-					<th><a href="?search={{ request.GET.search }}&order_by=nome&direction={% if request.GET.direction == 'asc' %}desc{% else %}asc{% endif %}">Nome</a></th>
-					<th><a href="?search={{ request.GET.search }}&order_by=uf&direction={% if request.GET.direction == 'asc' %}desc{% else %}asc{% endif %}">Sigla</a></th>
-					<th scope="col">Versão</th>
-					<th scope="col">Países</th>
-					<th scope="col">Bandeira</th>
-					<th scope="col">Criado Em</th>
-					<th scope="col">Atualizado Em</th>
+	<!-- TABELA -->
+	<div class="row">
+		<div class="col-12">
+			<div class="card shadow-lg border-0">
+				<div class="card-header bg-gradient-info text-white">
+					<div class="row align-items-center">
+						<div class="col-md-6">
+							<h4 class="mb-0">
+								<i class="fas fa-list"></i> Lista de Estados
+							</h4>
+						</div>
+						<div class="col-md-6">
+							<!-- FORMULÁRIO DE BUSCA SEPARADO -->
+							<form id="search-form" method="GET" class="d-flex">
+								<input type="text" name="search" class="form-control me-2"
+									placeholder="Buscar por nome..." value="{{ request.GET.search }}">
+								<button type="submit" class="btn btn-light">
+									<i class="fas fa-search"></i>
+								</button>
+							</form>
+						</div>
+					</div>
+				</div>
+				<div class="card-body p-0">
+					<div class="table-responsive">
+						<table class="table table-hover table-striped mb-0">
+							<thead class="table-dark">
+								<tr>
+									<th scope="col">ID</th>
+									<th>
+										<a href="?search={{ request.GET.search }}&order_by=nome&direction={% if request.GET.direction == 'asc' %}desc{% else %}asc{% endif %}"
+											class="text-white text-decoration-none">
+											<i class="fas fa-sort"></i> Nome
+										</a>
+									</th>
+									<th>
+										<a href="?search={{ request.GET.search }}&order_by=uf&direction={% if request.GET.direction == 'asc' %}desc{% else %}asc{% endif %}"
+											class="text-white text-decoration-none">
+											<i class="fas fa-sort"></i> Sigla
+										</a>
+									</th>
+									<th scope="col"><i class="fas fa-city"></i> País</th>
+									<th scope="col"><i class="fas fa-city"></i> Versão</th>
+									<th scope="col"><i class="fas fa-city"></i> Bandeira</th>
+									<th scope="col"><i class="fas fa-flag"></i> Em</th>
+									<th scope="col" class="text-center"><i class="fas fa-cogs"></i> Ações</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for estado in db %}
+								<tr data-id="{{ estado.id }}" class="estado-row cursor-pointer"
+									onclick="selecionarEstado({ estado_id })">
+									<td class="text-center fw-bold">{{ estado.id }}</td>
+									<td class="fw-bold text-primary">{{ estado.nome }}</td>
+									<td class="fw-bold text-primary">{{ estado.uf }}</td>
+									<td class="fw-bold text-primary">{{ estado.patrias }}</td>
+									<td>{{ estado.versao }}</td>
+									<td>{{ estado.flag}}</td>
+									<td>
+										<span class="badge bg-warning">
+											{{ estado.created_at|date:"d/m/Y" }}
+										</span>
+									</td>
+									<td class="text-center">
+										<button class="btn btn-sm btn-outline-primary me-1 btn-editar"
+											data-id="{{ estado.id }}" title="Editar">
+											<i class="fas fa-edit"></i>
+										</button>
 
-				</tr>
-			</thead>
-			<tbody>
-				{% for estado in db %}
-				<tr data-id="{{ estado.id }}" class="estado-row">
-					<td>{{ estado.id}}</td>
-					<td>{{ estado.nome}}</td>
-					<td>{{ estado.uf}}</td>
-					<td>{{ estado.versao}}</td>
-					<td>{{ estado.patrias}}</td>
-					<td>{{ estado.flag}}</td>
-					<td>{{ estado.created_at}}</td>
-					<td>{{ estado.updated_at}}</td>
-					<td>
-						<a class="btn btn-danger" href="{% url 'core_estado_delete_confirm' estado.id%}"
-							onClick="return confirm('Tem certeza que deseja excluir este estado?') ">Deletar</a>
-					</td>
-				</tr>
-				{% endfor %}
+										<a class="btn btn-danger" href="{% url 'core_estado_delete_confirm' estado.id%}"
+											onClick="return confirm('Tem certeza que deseja excluir este estado {{estado.id}}?') ">Deletar
+											<i class="fas fa-trash"></i>
+										</a>
 
-			</tbody>
-		</table>
-		<!-- Exibir links de navegação da página -->
-		<div>
-			<span>Página {{ db.number }} de {{ db.paginator.num_pages }}</span>
-			<div>
-				{% if db.has_previous %}
-					<a href="?page={{ db.previous_page_number }}&search={{ request.GET.search }}&order_by={{ request.GET.order_by }}&direction={{ request.GET.direction }}">Anterior</a>
-				{% endif %}
-		
-				{% if db.has_next %}
-					<a href="?page={{ db.next_page_number }}&search={{ request.GET.search }}&order_by={{ request.GET.order_by }}&direction={{ request.GET.direction }}">Próximo</a>
+
+									</td>
+								</tr>
+								{% empty %}
+								<tr>
+									<td colspan="10" class="text-center py-4">
+										<div class="text-muted">
+											<i class="fas fa-inbox fa-2x mb-2"></i>
+											<p>Nenhum estado encontrado.</p>
+										</div>
+									</td>
+								</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+
+				<!-- Paginação -->
+				<!-- Paginação -->
+				{% if db.paginator.num_pages > 1 %}
+				<div class="card-footer bg-light">
+					<div class="d-flex justify-content-between align-items-center">
+						<div class="text-muted">
+							<small>
+								Mostrando {{ db.start_index }} a {{ db.end_index }}
+								de {{ db.paginator.count }} registros
+							</small>
+						</div>
+						<nav aria-label="Navegação da página">
+							<ul class="pagination pagination-sm mb-0">
+								{% if db.has_previous %}
+								<li class="page-item">
+									<a class="page-link"
+										href="?page=1&search={{ request.GET.search }}&order_by={{ request.GET.order_by }}&direction={{ request.GET.direction }}">
+										<i class="fas fa-angle-double-left"></i>
+									</a>
+								</li>
+								<li class="page-item">
+									<a class="page-link"
+										href="?page={{ db.previous_page_number }}&search={{ request.GET.search }}&order_by={{ request.GET.order_by }}&direction={{ request.GET.direction }}">
+										<i class="fas fa-angle-left"></i>
+									</a>
+								</li>
+								{% endif %}
+
+								{% for num in db.paginator.page_range %}
+								{% if num == db.number %}
+								<li class="page-item active">
+									<span class="page-link">{{ num }}</span>
+								</li>
+								{% elif num > db.number|add:'-3' and num < db.number|add:'3' %} <li class="page-item">
+									<a class="page-link"
+										href="?page={{ num }}&search={{ request.GET.search }}&order_by={{ request.GET.order_by }}&direction={{ request.GET.direction }}">
+										{{ num }}
+									</a>
+									</li>
+									{% endif %}
+									{% endfor %}
+
+									{% if db.has_next %}
+									<li class="page-item">
+										<a class="page-link"
+											href="?page={{ db.next_page_number }}&search={{ request.GET.search }}&order_by={{ request.GET.order_by }}&direction={{ request.GET.direction }}">
+											<i class="fas fa-angle-right"></i>
+										</a>
+									</li>
+									<li class="page-item">
+										<a class="page-link"
+											href="?page={{ db.paginator.num_pages }}&search={{ request.GET.search }}&order_by={{ request.GET.order_by }}&direction={{ request.GET.direction }}">
+											<i class="fas fa-angle-double-right"></i>
+										</a>
+									</li>
+									{% endif %}
+							</ul>
+						</nav>
+					</div>
+				</div>
 				{% endif %}
 			</div>
 		</div>
-		<div>
-		</div>
-		<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-		<script>
-			$(document).ready(function () {
-				// Quando um item da tabela é clicado
-				$('.estado-row').on('click', function () {
-					var estadoId = $(this).data('id');
-					var url = '/sistema/detalhar_estado/' + estadoId + '/';
+	</div>
+</div>
 
-					// Realiza a requisição AJAX
-					$.ajax({
-						url: url,
-						method: 'GET',
-						success: function (data) {
-							// Preenche o formulário com os dados do estado
-							$('#id_estado_id').val(estadoId);  // Armazena o ID do livro
-							$('#id_nome').val(data.nome);
-							$('#id_uf').val(data.uf);
-							$('#id_patrias').val(data.patrias);
-							$('#id_versao').val(data.versao);
-						
-							if (data.flag) {
-								$('#id_flag_preview').attr('src', data.flag);
-							} else {
-								$('#id_flag_preview').attr('src', '');  // Limpa o preview se não houver imagem
-							}
-							
-							$('#id_created_at').val(data.created_at);
-							$('#id_updated_at').val(data.updated_at);
+<style>
+	.bg-gradient-primary {
+		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	}
 
-						}
+	.bg-gradient-info {
+		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	}
+
+	.card {
+		border-radius: 15px;
+		transition: transform 0.2s ease-in-out;
+	}
+
+	.card:hover {
+		transform: translateY(-2px);
+	}
+
+	.form-control {
+		border-radius: 10px;
+		border: 2px solid #e9ecef;
+		transition: all 0.3s ease;
+	}
+
+	.form-control:focus {
+		border-color: #667eea;
+		box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+	}
+
+	.form-control-lg {
+		padding: 12px 16px;
+		font-size: 1.1rem;
+	}
+
+	.btn {
+		border-radius: 10px;
+		transition: all 0.3s ease;
+	}
+
+	.btn:hover {
+		transform: translateY(-1px);
+	}
+
+	.btn-primary {
+		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+		border: none;
+	}
+
+	.btn-primary:hover {
+		background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+	}
+
+	.table {
+		font-size: 0.95rem;
+	}
+
+	.table thead th {
+		border-bottom: 2px solid #dee2e6;
+		font-weight: 600;
+		text-transform: uppercase;
+		font-size: 0.85rem;
+		letter-spacing: 0.5px;
+	}
+
+	.destino-row {
+		cursor: pointer;
+		transition: all 0.2s ease;
+	}
+
+	.destino-row:hover {
+		background-color: #f8f9fa !important;
+		transform: scale(1.01);
+	}
+
+	.image-preview-container {
+		margin: 20px 0;
+	}
+
+	.badge {
+		font-size: 0.8rem;
+	}
+
+	.pagination {
+		margin: 0;
+	}
+
+	.pagination .page-link {
+		border-radius: 10px;
+		margin: 0 3px;
+		border: 2px solid #dee2e6;
+		color: #0d1d64;
+	}
+
+	.pagination .page-item.active .page-link {
+		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+		border-color: #667eea;
+	}
+
+	.cursor-pointer {
+		cursor: pointer;
+	}
+
+	.text-decoration-none:hover {
+		text-decoration: underline !important;
+	}
+
+	code {
+		background-color: #f8f9fa;
+		padding: 2px 4px;
+		border-radius: 4px;
+		font-size: 0.85rem;
+	}
+</style>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+	$(document).ready(function () {
+		$('.estado-row').on('click', function () {
+			var estadoId = $(this).data('id');
+			var url = '/sistema/detalhar_estado/' + estadoId + '/';
+
+			$.ajax({
+				url: url,
+				method: 'GET',
+				success: function (data) {
+					// Preenche o formulário...
+					$('#id_estado_id').val(estadoId);
+					$('#id_nome').val(data.nome);
+					$('#id_uf').val(data.uf);
+					$('#id_patrias').val(data.patrias);
+					$('#id_versao').val(data.versao);
+					if (data.flag) {
+						$('#id_flag_preview').attr('src', data.flag).show();
+						$('#current-flag-info').show();
+					} else {
+						$('#id_flag_preview').hide();
+						$('#current-flag-info').hide();
+					}
+					$('#id_created_at').val(data.created_at);
+					$('#id_updated_at').val(data.updated_at);
+
+					// Scroll suave até o formulário e depois focar
+					var form = $('#id_nome').closest('form');
+					$('html, body').animate({
+						scrollTop: form.offset().top - 50
+					}, 300, function () {
+						$('#id_nome').focus().select();
 					});
-				});
+				}
 			});
-
-		</script>
-	</div>	
+		});
+	});
+	$('#id_flag').on('change', function () {
+		const file = this.files[0];
+		if (file) {
+			const reader = new FileReader();
+			reader.onload = function (e) {
+				$('#id_flag_preview').attr('src', e.target.result).show();
+			};
+			reader.readAsDataURL(file);
+		} else {
+			$('#id_flag_preview').hide();
+		}
+	});
+</script>
 {% endblock %}

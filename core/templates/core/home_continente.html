@@ -1,0 +1,517 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block menu %}
+<ul class="nav nav-tabs">
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'core_home' %}">Home</a>
+    </li>
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle active" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
+            aria-expanded="false">Serviços</a>
+        <div class="dropdown-menu">
+            <a class="dropdown-item active" href="{% url 'core_listar_continentes' %}">Continentes</a>
+            <a class="dropdown-item" href="{% url 'core_listar_cidades' %}">Cidades</a>
+            <a class="dropdown-item" href="{% url 'core_listar_estados' %}">Estados</a>
+            <a class="dropdown-item" href="{% url 'core_listar_patrias' %}">Países</a>
+        </div>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'core_home' %}">Logout</a>
+    </li>
+</ul>
+{% endblock %}
+
+{% block main %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="text-center mb-4 text-primary">
+                <i class="fas fa-map-marker-alt"></i> Gerenciamento de Continentes
+            </h2>
+        </div>
+    </div>
+
+    <!-- FORMULÁRIO DE CONTINENTE -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-gradient-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-plus-circle"></i> Cadastro de Continente
+                    </h4>
+                </div>
+                <div class="card-body bg-light">
+                    <form id="continente-form" method="POST" enctype="multipart/form-data"
+                        action="{% url 'core_salvar_continente' %}">
+                        {% csrf_token %}
+                        <input type="hidden" id="id_continente_id" name="continente_id">
+
+                        <div class="row">
+                            <!-- Coluna Esquerda -->
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="id_name" class="form-label fw-bold">
+                                        <i class="fas fa-tag"></i> Nome do Continente
+                                    </label>
+                                    <input type="text" class="form-control form-control-lg" id="id_nome" name="nome"
+                                        placeholder="Digite o nome do continente" required>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label for="id_versao" class="form-label fw-bold">
+                                        <i class="fas fa-city"></i> Versão
+                                    </label>
+                                    <input type="text" class="form-control form-control-lg" id="id_versao" name="versao"
+                                        placeholder="Digite a versão" required>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label for="id_arrival_date" class="form-label fw-bold">
+                                        <i class="fas fa-calendar-plus"></i> Em:
+                                    </label>
+                                    <input type="date" class="form-control form-control-lg" id="id_created_at"
+                                        name="created_at" required>
+                                </div>
+
+                                
+
+                        
+
+                        <!-- Botões -->
+                        <div class="row mt-4">
+                            <div class="col-12 text-center">
+                                <button type="submit" class="btn btn-primary btn-lg px-5 me-3">
+                                    <i class="fas fa-save"></i> Salvar Continente
+                                </button>
+                                <button type="button" class="btn btn-secondary btn-lg px-5"
+                                    onclick="limparFormulario()">
+                                    <i class="fas fa-eraser"></i> Limpar
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+<!-- TABELA -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-gradient-info text-white">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <h4 class="mb-0">
+                                <i class="fas fa-list"></i> Lista de Continentes
+                            </h4>
+                        </div>
+                        <div class="col-md-6">
+                            <!-- FORMULÁRIO DE BUSCA SEPARADO -->
+                            <form id="search-form" method="GET" class="d-flex">
+                                <input type="text" name="search" class="form-control me-2"
+                                    placeholder="Buscar por nome..." value="{{ request.GET.search }}">
+                                <button type="submit" class="btn btn-light">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped mb-0">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th scope="col" class="text-center">#</th>
+                                    <th scope="col">
+                                        <a href="?search={{ request.GET.search }}&order_by=nome&direction={% if request.GET.direction == 'asc' %}desc{% else %}asc{% endif %}"
+                                            class="text-white text-decoration-none">
+                                            <i class="fas fa-sort"></i> Nome
+                                        </a>
+                                    </th>
+                                    <th scope="col"><i class="fas fa-city"></i> Versão</th>
+                                    <th scope="col"><i class="fas fa-flag"></i> Em</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for continente in db %}
+                                <tr data-id="{{ continente.id }}" class="destino-row cursor-pointer"
+                                    onclick="selecionarDestino({ continente_id })">
+                                    <td class="text-center fw-bold">{{ continente.id }}</td>
+                                    <td class="fw-bold text-primary">{{ continente.nome }}</td>
+                                    <td>{{ continente.versao }}</td>
+                                    <td>
+                                        <span class="badge bg-warning">
+                                            {{ destino.created_at|date:"d/m/Y" }}
+                                        </span>
+                                    </td>
+                                       
+                                       <a class="btn btn-sm btn-outline-danger"
+                                            href="{% url 'trip:continente_delete' continente.id %}"
+                                            onclick="return confirm('Tem certeza que deseja excluir este continente?')"
+                                            title="Deletar">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="10" class="text-center py-4">
+                                        <div class="text-muted">
+                                            <i class="fas fa-inbox fa-2x mb-2"></i>
+                                            <p>Nenhum cntinente encontrado.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Paginação -->
+                {% if db.paginator.num_pages > 1 %}
+                <div class="card-footer bg-light">
+                    <div class="d-flex justify-content-center">
+                        <nav aria-label="Navegação da página">
+                            <ul class="pagination pagination-lg mb-0">
+                                {% if db.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link"
+                                        href="?page={{ db.previous_page_number }}&search={{ request.GET.search }}&order_by={{ request.GET.order_by }}&direction={{ request.GET.direction }}">
+                                        <i class="fas fa-chevron-left"></i> Anterior
+                                    </a>
+                                </li>
+                                {% endif %}
+
+                                <li class="page-item active">
+                                    <span class="page-link">
+                                        Página {{ db.number }} de {{ db.paginator.num_pages }}
+                                    </span>
+                                </li>
+
+                                {% if db.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link"
+                                        href="?page={{ db.next_page_number }}&search={{ request.GET.search }}&order_by={{ request.GET.order_by }}&direction={{ request.GET.direction }}">
+                                        Próxima <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .bg-gradient-info {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .card {
+        border-radius: 15px;
+        transition: transform 0.2s ease-in-out;
+    }
+
+    .card:hover {
+        transform: translateY(-2px);
+    }
+
+    .form-control {
+        border-radius: 10px;
+        border: 2px solid #e9ecef;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+
+    .form-control-lg {
+        padding: 12px 16px;
+        font-size: 1.1rem;
+    }
+
+    .btn {
+        border-radius: 10px;
+        transition: all 0.3s ease;
+    }
+
+    .btn:hover {
+        transform: translateY(-1px);
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    }
+
+    .table {
+        font-size: 0.95rem;
+    }
+
+    .table thead th {
+        border-bottom: 2px solid #dee2e6;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+    }
+
+    .destino-row {
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .destino-row:hover {
+        background-color: #f8f9fa !important;
+        transform: scale(1.01);
+    }
+
+    .image-preview-container {
+        margin: 20px 0;
+    }
+
+    .badge {
+        font-size: 0.8rem;
+    }
+
+    .pagination {
+        margin: 0;
+    }
+
+    .pagination .page-link {
+        border-radius: 10px;
+        margin: 0 3px;
+        border: 2px solid #dee2e6;
+        color: #667eea;
+    }
+
+    .pagination .page-item.active .page-link {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-color: #667eea;
+    }
+
+    .cursor-pointer {
+        cursor: pointer;
+    }
+
+    .text-decoration-none:hover {
+        text-decoration: underline !important;
+    }
+
+    code {
+        background-color: #f8f9fa;
+        padding: 2px 4px;
+        border-radius: 4px;
+        font-size: 0.85rem;
+    }
+</style>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+     
+        // Interceptar o submit do formulário principal
+        $('#continente-form').on('submit', function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            const continenteId = $('#id_continente_id').val();
+            
+            // Mostrar loading no botão
+            const $submitBtn = $(this).find('button[type="submit"]');
+            const originalText = $submitBtn.html();
+            $submitBtn.html('<i class="fas fa-spinner fa-spin"></i> Salvando...').prop('disabled', true);
+
+            $.ajax({
+                url: $(this).attr('action'),
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                success: function (response) {
+                    if (response.success) {
+                        // Mostrar mensagem de sucesso
+                        showAlert('success', response.message);
+                        
+                        // Limpar formulário
+                        limparFormulario();
+                        
+                        // Recarregar a página para atualizar a tabela
+                        setTimeout(function() {
+                            location.reload();
+                        }, 1500);
+                    } else {
+                        showAlert('danger', response.message || 'Erro ao salvar o continente.');
+                    }
+                },
+                error: function (xhr) {
+                    console.error('Erro AJAX:', xhr);
+                    
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        if (response.errors) {
+                            let errorMessage = 'Erro de validação:\n';
+                            for (const campo in response.errors) {
+                                errorMessage += `• ${campo}: ${response.errors[campo].join(', ')}\n`;
+                            }
+                            showAlert('danger', errorMessage.replace(/\n/g, '<br>'));
+                        } else {
+                            showAlert('danger', response.message || 'Erro inesperado ao salvar o continente.');
+                        }
+                    } catch (e) {
+                        showAlert('danger', 'Erro inesperado. Verifique os dados e tente novamente.');
+                    }
+                },
+                complete: function() {
+                    // Restaurar botão
+                    $submitBtn.html(originalText).prop('disabled', false);
+                }
+            });
+        });
+
+        // Evento para botões de editar
+        $(document).on('click', '.btn-editar', function(e) {
+            e.stopPropagation();
+            const destinoId = $(this).data('id');
+            editarContinente(continenteId);
+        });
+
+        // Evento para linhas da tabela (clique na linha inteira)
+        $(document).on('click', '.destino-row', function(e) {
+            // Evitar trigger duplo quando clicar nos botões
+            if (!$(e.target).closest('button, a').length) {
+                const continenteId = $(this).data('id');
+                selecionarContinente(continenteId);
+            }
+        });
+
+        // Evento para botão limpar
+        $('#btn-limpar').on('click', function() {
+            limparFormulario();
+        });
+
+        // Auto-hide alerts após 5 segundos
+        setTimeout(function() {
+            $('.alert').fadeOut();
+        }, 5000);
+    });
+
+    function selecionarContinente(continenteId) {
+        editarContinente(continenteId);
+    }
+
+    function editarContinente(continenteId) {
+        // URL da view de detalhes do continente
+        var continenteId = $(this).data('id');
+        var url = '/sistema/detalhar_continente/' + continenteId + '/';
+        //const url = "{% url 'sistema_detalhar_continente' 0 %}".replace('0', continenteId);
+
+        // Mostrar loading
+        showAlert('info', '<i class="fas fa-spinner fa-spin"></i> Carregando dados do continente...');
+
+        $.ajax({
+            url: url,
+            method: 'GET',
+            success: function (data) {
+                // Limpar alert de loading
+                $('.alert').remove();
+                print(data)
+                // Preencher o formulário
+                $('#id_continente_id').val(data.id);
+                $('#id_name').val(data.nome);
+                $('#id_versao').val(data.versao);
+                $('#id_created_at').val(data.created_at);ente
+                
+                // Atualizar título do formulário
+                $('#form-title').text('Editar Continente');
+                $('#btn-text').text('Atualizar Continente');
+
+                
+
+                // Scroll para o formulário
+                $('html, body').animate({
+                    scrollTop: $("#continente-form").offset().top - 100
+                }, 500);
+
+                // Destacar o formulário
+                $('#card-formulario').addClass('border-primary-highlight');
+                setTimeout(function () {
+                    $('#card-formulario').removeClass('border-primary-highlight');
+                }, 2000);
+
+                showAlert('success', `Dados do continente "${data.name}" carregados para edição.`);
+            },
+            error: function (xhr) {
+                console.error('Erro ao carregar continente:', xhr);
+                showAlert('danger', 'Erro ao carregar os dados do continente. Tente novamente.');
+            }
+        });
+    }
+
+    function limparFormulario() {
+        $('#continente-form')[0].reset();
+        $('#id_continente_id').val('');
+                
+        // Resetar títulos
+        $('#form-title').text('Cadastro de Continente');
+        $('#btn-text').text('Salvar Continente');
+        
+        // Remover destaque do formulário
+        $('#card-formulario').removeClass('border-primary-highlight');
+        
+        $('html, body').animate({
+            scrollTop: $("#continente-form").offset().top - 100
+        }, 500);
+    }
+
+    function showAlert(type, message) {
+        // Remover alerts existentes
+        $('.alert').remove();
+        
+        // Criar novo alert
+        const alertHtml = `
+            <div class="alert alert-${type} alert-dismissible fade show position-fixed" 
+                 style="top: 20px; right: 20px; z-index: 9999; min-width: 300px;" role="alert">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+        
+        $('body').append(alertHtml);
+        
+        // Auto-hide após 5 segundos
+        setTimeout(function() {
+            $('.alert').fadeOut();
+        }, 5000);
+    }
+
+    // Melhorar UX da busca
+    $('#search-form input[name="search"]').on('keyup', function() {
+        const query = $(this).val();
+        if (query.length === 0 && $(this).data('had-content')) {
+            // Se limpar o campo de busca, mostrar todos os resultados
+            $(this).closest('form').submit();
+        }
+        $(this).data('had-content', query.length > 0);
+    });
+</script>
+{% endblock %}

@@ -1,35 +1,28 @@
 from django.contrib import admin
 
 from .models import(
-    Continente, Patrias, Estados, Cidades
+    Continentes, Cidades, Estados, Patrias
 )
 
-admin.site.register(Continente)
+admin.site.register(Continentes), 
+admin.site.register(Cidades), 
+admin.site.register(Estados), 
 admin.site.register(Patrias)
-admin.site.register(Estados)
-admin.site.register(Cidades)
-
 
 class ContinenteAdmin(admin.ModelAdmin):
-    list_display = (
-        'nome'
-    )
+    list_display = {
+        "nome"
+    }
 
-class PatriasAdmin(admin.ModelAdmin):
-    list_display = (
-        'nome', 'capital'
-    )
+class CidadeAdmin(admin.ModelAdmin):
+    list_display = {
+        "nome"
+    }
 
-class EstadosAdmin(admin.ModelAdmin):
-    list_display = (
-        'nome'
-    )
+class EstadoAdmin(admin.ModelAdmin):
+    list_display = {
+        "nome"
+    }
 
-class CidadesAdmin(admin.ModelAdmin):
-    list_display = (
-        'nome'
-    )
-
-
-
-
+class PatriaAdmin(admin.ModelAdmin):
+    list_display = ('nome','capital')

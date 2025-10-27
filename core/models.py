@@ -1,36 +1,36 @@
 from django.db import models
 
-class Continente(models.Model):
+class Continentes(models.Model):
     nome = models.CharField(max_length=45)
     versao = models.IntegerField(blank=True, null=True)
-    created_at = models.DateField()
-    updated_at = models.DateField()
+    created_at = models.DateField(auto_now_add=True)
+    updated_at = models.DateField(auto_now=True)
 
     def __str__(self):
         return self.nome
     
     class Meta:
-        managed = False
+        managed = True
         db_table = 'continentes'
 
 class Patrias(models.Model):
-    nome = models.CharField(max_length=45)
+    nome = models.CharField(max_length=255, unique=True)
     capital = models.CharField(max_length=100)
-    populacao = models.CharField(max_length=45)
+    populacao = models.BigIntegerField()
     versao = models.IntegerField(blank=True, null=True)
-    created_at = models.DateField()
-    updated_at = models.DateField()
-    continentes = models.ForeignKey(Continente, models.DO_NOTHING)
-    flag = models.ImageField(upload_to='flags/')
+    created_at = models.DateField(auto_now_add=True)
+    updated_at = models.DateField(auto_now=True)
+    continentes = models.ForeignKey(Continentes, models.DO_NOTHING)
+    #continentes = models.ForeignKey(Continente, on_delete=models.CASCADE, default=1)  # Use um ID válido do continente
+    flag = models.ImageField(upload_to='flags/', null=True)
 
     def __str__(self):
         return self.nome
     
     class Meta:
-        managed = False
+        managed = True
         db_table = 'patrias'
         unique_together = (('id', 'continentes'),)
-
 
 class Estados(models.Model):
     nome = models.CharField(max_length=100)
@@ -39,26 +39,26 @@ class Estados(models.Model):
     versao = models.IntegerField(blank=True, null=True)
     created_at = models.DateField(blank=True, null=True)
     updated_at = models.DateField()
-    flag = models.ImageField(upload_to='flags/')    
+    flag = models.ImageField(upload_to='flags/', null=True)    
 
     def __str__(self):
         return self.nome
     
     class Meta:
-        managed = False
+        managed = True
         db_table = 'estados'
 
 class Cidades(models.Model):
     nome = models.CharField(max_length=100)
+    estados = models.ForeignKey('Estados', models.DO_NOTHING)
     versao = models.IntegerField(blank=True, null=True)
     created_at = models.DateField()
-    updated_at = models.DateField()
-    estados = models.ForeignKey('Estados', models.DO_NOTHING)
+    updated_at = models.DateField(auto_now=True)
+    
 
     def __str__(self):
         return self.nome
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'cidades'
-

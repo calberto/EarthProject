@@ -1,1 +1,6 @@
 envEarth
+media
+static
+staticfiles
+requirements.txt
+core/migrations/0001_initial.py
